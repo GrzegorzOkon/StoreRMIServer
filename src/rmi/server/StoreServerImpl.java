@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import rmi.server.input.Order;
 import rmi.server.output.Bill;
+import rmi.server.output.NotEnoughItemsException;
 
 public class StoreServerImpl implements StoreServer {
     private HashMap<String, Integer> aktualnaIloœæTowaru = new HashMap<>();
@@ -16,14 +17,14 @@ public class StoreServerImpl implements StoreServer {
 	}
 
 	@Override
-	public synchronized Bill orderItems(Order order) throws RemoteException {
+	public synchronized Bill orderItems(Order order) throws RemoteException, NotEnoughItemsException {
 		if (aktualnaIloœæTowaru.get(order.getNazwaTowaru()) >= order.getIloœæTowaru()) {
 			aktualnaIloœæTowaru.put(order.getNazwaTowaru(), aktualnaIloœæTowaru.get(order.getNazwaTowaru()) - order.getIloœæTowaru());
 			
 			return new Bill(order.getIdentyfikatorKlienta(), order.getNazwaTowaru(), order.getIloœæTowaru(), 
 					order.getNumerRachunkuBankowegoKlienta(), "11222233334444555566667777");
 		} else {
-			return null;
+			throw new NotEnoughItemsException("Brak wystarczaj¹cej iloœci towaru: " + order.getNazwaTowaru());
 		}
 	}
 }
